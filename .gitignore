@@ -1,0 +1,5 @@
+**/node_modules
+__build
+__build_tests
+coverage
+api-docs
