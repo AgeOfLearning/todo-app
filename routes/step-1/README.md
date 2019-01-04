@@ -6,11 +6,11 @@ The purpose of this tutorial is to demonstrate features of the AofL JS framework
 
 A User should be able to ...
 
-1. Add new items
-1. Toggle items complete/incomplete
-1. Filter items by completed, not completed and all
-1. See the count of incomplete items
-1. Edit items
+1. add new items
+1. toggle items complete/incomplete
+1. filter items by completed, not completed
+1. remove the filter
+1. see the count of incomplete items
 
 ## Init Project
 
@@ -23,13 +23,13 @@ cd todo-app
 ```
 
 _You can also follow along with the source code from this repo: https://github.com/AgeOfLearning/todo-app.<br>
-Each section will have a corresponding route corresponding to each stage of the tutorial._
+Each section will have a corresponding branch that you can checkout_
 
-## Step 1
+## Getting started
 
-_The code for this section is in `routes/step-1` folder in the todo app repo referenced above._
+_The code for this section is in `routes/step-1` folder in the todo app repo referenced above_
 
-We'll start with a naive approach without a store for state or form validation so we can learn the simple concepts first and layer up the complexity as required. We'll still need to think about the state though. For now let's just add the `todos`, `todosCount` and `todoDescription` properties to our home page component and initialize those default values in the constructor. The `todoDescription` will hold the text value of the current todo in our add todo form.
+We'll startout with a naive approach without a store for state or form validation so we can learn the simple concepts first and layer up the complexity as required. We'll still need to think about the state though. For now let's just add `filteredTodos`, `todosCount` and `todoDescription` properties to our home page component and initialize those default values in the constructor. We choose the `filteredTodos` name since later we will add the option of filtering the todos. The `todoDescription` will hold the text value of the current todo in our add todo form.
 
 <!-- prettier-ignore -->
 ```javascript
@@ -42,7 +42,7 @@ class HomePage extends AoflElement {
    */
   constructor() {
     super();
-    this.todos = [];
+    this.filteredTodos = [];
     this.todoDescription = '';
     this.todosCount = 0;
   }
@@ -53,7 +53,7 @@ class HomePage extends AoflElement {
   static get properties() {
     return {
       todosCount: {type: Number, attribute: false},
-      todos: {type: Array, attribute: false},
+      filteredTodos: {type: Array, attribute: false},
       todoDescription: {type: String, attribute: false}
     };
   }
@@ -68,7 +68,7 @@ Next let's build the view. We'll need a list for the todo items and a form to en
   export const template = (ctx, html) => html`
     <h1>Todos</h1>
     <ul>
-      ${ctx.todos.map((todo) => html`<li>${todo.description}</li>`)}
+      ${ctx.filteredTodos.map((todo) =>html`<li>${todo.description}</li>`)}
     </ul>
     <form @submit=${(e) => ctx.addTodo(e)}>
       <input
@@ -85,7 +85,7 @@ Next let's build the view. We'll need a list for the todo items and a form to en
   `;
 ```
 
-The template file exports a tempate function which returns a lit-html template. It receieves two arguments `ctx` and `html`, the latter is the method lit-html uses to render the template and the former is the context of our home page component. The template maps our todos in un ordered list and provides a simple form for adding todos and maps the form's input value to the component's `todoDescription` property.
+The template file exports a tempate function which returns a lit-html template. It receieves two arguments `ctx` and `html`, the latter is the method lit-html uses to render the template and the former is the context of our home page component. The template maps our filteredTodos in un ordered list and provides a simple form for adding todos and maps the form's input value to the component's `todoDescription` property.
 
 _`@submit` and `@input` are `lit-html` syntax for corresponding DOM event listeners._
 
@@ -101,7 +101,7 @@ class HomePage extends AoflElement {
    */
   constructor() {
     super();
-    this.todos = [];
+    this.filteredTodos = [];
     this.todoDescription = '';
     this.todosCount = 0;
     this.idIncrementor = 0;
@@ -121,7 +121,7 @@ class HomePage extends AoflElement {
    */
   addTodo(e) {
     e.preventDefault();
-    this.todos = this.todos.concat([{
+    this.filteredTodos = this.filteredTodos.concat([{
       id: this.idIncrementer,
       description: this.todoDescription
     }]);
@@ -132,7 +132,7 @@ class HomePage extends AoflElement {
 }
 ```
 
-Congrats! At this point we have a working todo list, albeit a crude one. Let's go over the methods we've written. The `onTodoInput` method simply captures the input value from the passed Event object and assigns it to the `todoDescription` property. The `addTodo` method prevents the default form submission behavior and assigns `todos` a new array which merges the previous array with a new array containing the new todo object which, consists of an incrementing id and the `todoDescription`. We also increment the `todosCount` and reset the `todoDescription` to an empty string. Also take note that we declared and initialized `idIncrementor` in the contstructor.
+Congrats! At this point we have a working todo list, albeit a crude one. Let's go over the methods we've written. The `onTodoInput` method simply captures the input value from the passed Event object and assigns it to the `todoDescription` property. The `addTodo` method prevents the default form submission behavior and assigns `filteredTodos` a new array which merges the previous array with a new array containing the new todo object which, consists of an incrementing id and the `todoDescription`. We also increment the `todosCount` and reset the `todoDescription` to an empty string. Also take note that we declared and initialized `idIncrementor` in the contstructor.
 
 Now do the following to see the progress:<br>
 `npm run start:dev`

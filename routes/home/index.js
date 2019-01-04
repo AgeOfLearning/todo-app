@@ -3,25 +3,23 @@
  * @title AofL::Home
  * @prerender false
  */
-import {template} from './template';
-import AoflElement from '@aofl/web-components/aofl-element';
 import styles from './template.css';
+import template from './template';
+import AoflElement from '@aofl/web-components/aofl-element';
 
 /**
- *
+ * @summary Home Page
  * @extends {AoflElement}
  */
 class HomePage extends AoflElement {
   /**
-   *
-   * Creates an instance of HomePage.
+   * Creates an instance of Home.
    */
   constructor() {
     super();
   }
 
   /**
-   *
    * @readonly
    */
   static get is() {
@@ -37,6 +35,6 @@ class HomePage extends AoflElement {
   }
 }
 
-customElements.define(HomePage.is, HomePage);
+window.customElements.define(HomePage.is, HomePage);
 
 export default HomePage;
