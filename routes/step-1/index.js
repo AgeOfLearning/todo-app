@@ -20,8 +20,8 @@ class Step1 extends AoflElement {
     super();
     this.todos = [];
     this.todoDescription = '';
-    this.idIncrementer = 0;
     this.todosCount = 0;
+    this.idIncrementer = 0;
   }
 
   /**
@@ -50,7 +50,7 @@ class Step1 extends AoflElement {
   addTodo(e) {
     e.preventDefault();
     this.todos = this.todos.concat([{
-      id: this.idIncrementer,
+      id: this.idIncrementer++,
       description: this.todoDescription
     }]);
     this.todoDescription = '';
