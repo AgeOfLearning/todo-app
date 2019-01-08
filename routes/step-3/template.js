@@ -1,5 +1,9 @@
+import './modules/add-todo';
+import './modules/todo-filters';
+
 export const template = (ctx, html) => html`
   <h1>Todos</h1>
+  <todo-filters></todo-filters>
   <ul>
     ${ctx.todos.map((todo) => html`
       <li>
@@ -27,19 +31,10 @@ export const template = (ctx, html) => html`
       </li>
     `)}
   </ul>
-  <form @submit=${(e) => ctx.addTodo(e)}>
-    <input
-      type="text"
-      autofocus
-      autocomplete="off"
-      placeholder="I need to..."
-      .value=${ctx.todoDescription}
-      @input=${(e) => ctx.onTodoInput(e)}>
-    <button type="submit">Add</button>
-  </form>
+  <add-todo></add-todo>
   <br>
   <p>Remaining todos: ${ctx.todosCount}</p>
 
   <!-- This is not part of tutorial -->
-<a href="/step-3">Go to step 3</a>
+  <a href="/step-4">Go to step 4</a>
 `;

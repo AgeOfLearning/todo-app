@@ -1,7 +1,7 @@
-// const cacheNamespaces = {
-//   ROTATIONS: 'rotations'
-// };
+const sdoNamespaces = {
+  TODOS: 'TODOS'
+};
 
 export {
-  // cacheNamespaces
+  sdoNamespaces
 };
