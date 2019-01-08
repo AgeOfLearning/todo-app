@@ -949,53 +949,63 @@ Now when approaching the state, we see that if we toggle between complete and in
 ```javascript
 // routes/home/modules/todos-sdo/index.js
 ...
-mutations: {
-  ...
-  filterCompleted(subState) {
-    return Object.assign({}, subState, {
-      filter: 'completed'
-    });
-  },
-  filterIncomplete(subState) {
-    return Object.assign({}, subState, {
-      filter: 'incomplete'
-    });
-  },
-  removeFilter(subState) {
-    return Object.assign({}, subState, {
-      filter: ''
-    });
-  }
-},
-decorators: [
-  function $todosCount(_nextState) {
-    return deepAssign(_nextState, sdoNamespaces.TODOS, {
-      $todosCount: _nextState[sdoNamespaces.TODOS].todos.filter((todo) => !todo.completed).length
-    });
-  },
-  function $filteredTodos(_nextState) {
-    const state = storeInstance.getState();
-    let nextState = _nextState;
-
-    if (typeof nextState[sdoNamespaces.TODOS].$filteredTodos === 'undefined' || // first run?
-    nextState[sdoNamespaces.TODOS] !== state[sdoNamespaces.TODOS]) {
-      let $filteredTodos = [...nextState[sdoNamespaces.TODOS].todos];
-
-      if (nextState[sdoNamespaces.TODOS].filter === 'completed') {
-        $filteredTodos = nextState[sdoNamespaces.TODOS].todos
-        .filter((todo) => todo.completed === false);
-      } else if (nextState[sdoNamespaces.TODOS].filter === 'incomplete') {
-        $filteredTodos = nextState[sdoNamespaces.TODOS].todos
-        .filter((todo) => todo.completed === true);
-      }
-
-      nextState = deepAssign(nextState, sdoNamespaces.TODOS, {
-        $filteredTodos
+const sdo = {
+  namespace: sdoNamespaces.TODOS,
+  mutations: {
+    init(payload = {}) {
+      return Object.assign({
+        todos: [],
+        description: '',
+        filter: ''
+      }, payload);
+    },
+    ...
+    filterCompleted(subState) {
+      return Object.assign({}, subState, {
+        filter: 'completed'
+      });
+    },
+    filterIncomplete(subState) {
+      return Object.assign({}, subState, {
+        filter: 'incomplete'
+      });
+    },
+    removeFilter(subState) {
+      return Object.assign({}, subState, {
+        filter: ''
       });
     }
-    return nextState;
-  }
-]
+  },
+  decorators: [
+    function $todosCount(_nextState) {
+      return deepAssign(_nextState, sdoNamespaces.TODOS, {
+        $todosCount: _nextState[sdoNamespaces.TODOS].todos.filter((todo) => !todo.completed).length
+      });
+    },
+    function $filteredTodos(_nextState) {
+      const state = storeInstance.getState();
+      let nextState = _nextState;
+
+      if (typeof nextState[sdoNamespaces.TODOS].$filteredTodos === 'undefined' || // first run?
+      nextState[sdoNamespaces.TODOS] !== state[sdoNamespaces.TODOS]) {
+        let $filteredTodos = [...nextState[sdoNamespaces.TODOS].todos];
+
+        if (nextState[sdoNamespaces.TODOS].filter === 'completed') {
+          $filteredTodos = nextState[sdoNamespaces.TODOS].todos
+          .filter((todo) => todo.completed === false);
+        } else if (nextState[sdoNamespaces.TODOS].filter === 'incomplete') {
+          $filteredTodos = nextState[sdoNamespaces.TODOS].todos
+          .filter((todo) => todo.completed === true);
+        }
+
+        nextState = deepAssign(nextState, sdoNamespaces.TODOS, {
+          $filteredTodos
+        });
+      }
+      return nextState;
+    }
+  ]
+}
 ...
 ```
 
