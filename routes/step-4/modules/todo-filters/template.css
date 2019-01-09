@@ -1,0 +1,17 @@
+:host {
+  display: inline-block;
+}
+
+button {
+  padding: .5em;
+  border: 1px solid #333;
+}
+
+.selected {
+  background: #333;
+  color: white;
+}
+
+button:focus {
+  outline: 0;
+}

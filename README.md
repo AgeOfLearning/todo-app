@@ -1,6 +1,6 @@
 # TODO App Tutorial
 
-The purpose of this tutorial is to demonstrate features of the AofL JS framework. In this tutorial we will use the CLI tool, data store, form validation, and as a bonus we'll even implement localization.
+The purpose of this tutorial is to demonstrate features of the AofL JS framework. In this tutorial we will use the CLI tool, data store and form validation.
 
 ## Requirements
 
@@ -62,8 +62,7 @@ class HomePage extends AoflElement {
   ...
 }
 ```
-
-Next let's build the view. We'll need a list for the todo items and a form to enter new todos. Let's add the markup in `/routes/home/template.js`. This markup is rendered by lit-html, which is essentially JavaScript template literals that are rendered to HTML.
+Next we'll add markup for the view. AofL JS uses `lit-html` for templating and the `static get properties` method is used by `lit-html` to decide which property changes should update the view. Let's add a list for the todo items and a form to enter them in `/routes/home/template.js`.
 
 ```javascript
   // routes/home/template.js
@@ -1024,4 +1023,308 @@ mapStateProperties() {
 }
 ...
 ```
-Wow! You've done it! Great job. We'll wrap up the last step of the tutorial with some notes and styling.
+That wraps up step 3 of the tutorial. In the last step we'll add simple form validation and styling to improve the interface.
+
+## Step 4
+
+Let's start with styling so we have something better to look at!
+
+Update the following template.css files:
+
+```css
+/* routes/home/template.css */
+:host {
+  display: block;
+  padding: 3em;
+  max-width: 600px;
+}
+
+.completed {
+  text-decoration: line-through;
+  font-style: italic;
+}
+
+ul {
+  padding: 0;
+  margin: 0;
+  margin-top: 2em;
+}
+
+li {
+  list-style: none;
+  cursor: pointer;
+}
+
+li span.desc {
+  vertical-align: top;
+}
+
+li .remove svg {
+  vertical-align: top;
+  position: relative;
+  vertical-align: top;
+  top: 5px;
+}
+
+li .remove svg:hover {
+  fill: red;
+}
+
+
+form {
+  display: inline-block;
+}
+
+input[type="text"] {
+  border: 0px;
+  border-bottom: 1px solid #ccc;
+  padding: .25em;
+  position: relative;
+  top: -5px;
+}
+
+input[type="text"]:focus {
+  outline: 0px;
+}
+```
+
+```css
+/* routes/home/modules/add-form/template.css */
+:host {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+}
+
+input {
+  height: 45px;
+  width: 100%;
+  padding: 5px;
+  line-height: 45px;
+  font-size: 17px;
+  margin: 0;
+  border: 0px;
+  border-bottom: 1px solid #ccc;
+}
+
+input:focus {
+  outline: 0px;
+  border-bottom: 1px solid #333;
+}
+
+button {
+  height: 45px;
+  line-height: 45px;
+  padding: 0 .5em;
+  margin: 0;
+  position: absolute;
+  background: transparent;
+  top: 0px;
+  right: 0px;
+  border: 0px;
+}
+```
+
+```css
+/* routes/home/modules/todo-filters.css */
+:host {
+  display: inline-block;
+}
+
+button {
+  padding: .5em;
+  border: 1px solid #333;
+}
+
+.selected {
+  background: #333;
+  color: white;
+}
+
+button:focus {
+  outline: 0;
+}
+```
+
+Now let's update our HomePage template to use some nice svg icons in place of the default checkbox input and delete buttons.
+
+```javascript
+// routes/home/template.js
+
+import './modules/add-todo';
+import './modules/todo-filters';
+
+export const template = (ctx, html) => html`
+  <h1>Todos</h1>
+  <todo-filters></todo-filters>
+  <ul>
+    ${ctx.todos.map((todo) => html`
+      <li>
+      <span @click="${(e) => ctx.toggleTodo(todo.id, !todo.completed)}">
+          ${todo.completed ? html`<i class="checked"><svg focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M10.9854 15.0752l-3.546-3.58 1.066-1.056 2.486 2.509 4.509-4.509 1.06 1.061-5.575 5.575zm1.015-12.075c-4.963 0-9 4.037-9 9s4.037 9 9 9 9-4.037 9-9-4.037-9-9-9z"></path></svg></i>`
+          : html`<i class="unchecked"><svg focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill-rule="evenodd"><path d="M12 20c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8m0-17c-4.963 0-9 4.037-9 9s4.037 9 9 9 9-4.037 9-9-4.037-9-9-9"></path></g></svg></i>`}
+        </span>
+        ${ctx.editingTodoId !== undefined && ctx.editingTodoId === todo.id ? html`
+          <form @submit=${(e) => ctx.toggleEditableTodo(e)}>
+            <input
+              type="text"
+              id="todo-input-${todo.id}"
+              .value=${todo.description}
+              @blur=${(e) => ctx.toggleEditableTodo(e)}
+              @input=${(e) => ctx.updateTodo(e, todo.id)}
+            >
+          </form>
+        ` : html`
+          <span
+            @dblclick=${(e) => ctx.toggleEditableTodo(e, todo.id)}
+            class="${todo.completed ? 'completed' : ''} desc"
+          >
+            ${todo.description}
+          </span>
+        `}
+        <span class="remove" @click="${(e) => ctx.removeTodo(todo.id)}">&nbsp; &nbsp;
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"><path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z"/></svg>
+        </span>
+      </li>
+    `)}
+  </ul>
+  <add-todo></add-todo>
+  <br>
+  <p>Remaining todos: ${ctx.todosCount}</p>
+
+  <!-- This is not part of tutorial -->
+  <a href="/step-4">Go to step 4</a>
+`;
+```
+
+Now that we've improved the user interface let's finish the application by adding form validation. Currently you are able to enter an empty value for a todo item. To fix that we'll add a validation mixin from `@aofl/form-validate`, add some validation logic and update the view to reflect the form's validation.
+
+First we'll install `@aofl/form-validate`
+```bash
+npm i -S @aofl/form-validate
+```
+
+Now let's implement the validation mixin:
+
+```javascript
+// routes/home/modules/add-todo/index.js
+
+import {storeInstance} from '@aofl/store';
+import {mapStatePropertiesMixin} from '@aofl/map-state-properties-mixin';
+import {sdoNamespaces} from '../../../../modules/constants-enumerate';
+import styles from './template.css';
+import template from './template';
+import AoflElement from '@aofl/web-components/aofl-element';
+import {validationMixin, isRequired} from '@aofl/form-validate';
+
+/**
+ * @summary AddTodo
+ * @extends {AoflElement}
+ */
+class AddTodo extends validationMixin(mapStatePropertiesMixin(AoflElement)) {
+  /**
+   * Creates an instance of AddTodo.
+   */
+  constructor() {
+    super();
+    this.storeInstance = storeInstance;
+    this.todoDescription = '';
+    this.validators = {
+      todoDescription: {
+        isRequired
+      }
+    };
+  }
+
+  /**
+   * @readonly
+   */
+  static get is() {
+    return 'add-todo';
+  }
+
+  /**
+   * @readonly
+   */
+  static get properties() {
+    return {
+      todoDescription: {type: String, attribute: false}
+    };
+  }
+
+  /**
+   *
+   * @param {Event} e
+   */
+  onTodoInput(e) {
+    this.storeInstance.commit({
+      namespace: sdoNamespaces.TODOS,
+      mutationId: 'updateTodoDescription',
+      payload: e.target.value
+    });
+    this.form.todoDescription.validate();
+  }
+
+  /**
+   *
+   * @param {Event} e
+   */
+  async addTodo(e) {
+    e.preventDefault();
+    this.form.validate();
+
+    await this.form.validateComplete;
+
+    if (this.form.valid) {
+      this.storeInstance.commit({
+        namespace: sdoNamespaces.TODOS,
+        mutationId: 'insert'
+      });
+    }
+  }
+
+  /**
+   *
+   */
+  mapStateProperties() {
+    const state = this.storeInstance.getState()[sdoNamespaces.TODOS];
+    this.todoDescription = state.description;
+  }
+  /**
+   *
+   * @return {Object}
+   */
+  render() {
+    return super.render(template, [styles]);
+  }
+}
+
+window.customElements.define(AddTodo.is, AddTodo);
+
+export default AddTodo;
+```
+
+Here we mixin the `validationMixin` and use a built in `isRequired` validation method to make sure the given field of interest is not empty. We setup a validation object `this.validators` which describes what component properties to validation and what validation methods to use. Here we just use the build `isRequired` method. We run validation in the on input event handler and verify form validation in our submit event handler. Now let's update the view to reflect when the form is invalid.
+
+```javascript
+// routes/home/modules/add-todo/template.js
+export default (ctx, html) => html`
+  <form @submit=${(e) => ctx.addTodo(e)}>
+    <input
+      type="text"
+      autofocus
+      autocomplete="off"
+      placeholder="I need to..."
+      .value=${ctx.todoDescription}
+      @input=${(e) => ctx.onTodoInput(e)}>
+    <button type="submit" ?disabled=${!ctx.form.valid}>Add</button>
+    ${ctx.form.todoDescription.isRequired.valid ? '' : html`
+      <p>Description is required</p>
+    `}
+  </form>
+`;
+```
+
+Pretty simple stuff. We toggle the disabled attribute on the add button as needed and add a custom message when the user attempts to enter an empty todo item.
+
+Wow! You've done it! Great job.

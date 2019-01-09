@@ -7,6 +7,7 @@ export default (context, html) => html`
   <ul>
     <li><link-to href="/step-1">Step one (Naive approach)</link-to></li>
     <li><link-to href="/step-2">Step two (Main features)</link-to></li>
-    <li><link-to href="/step-3">Step three (Architecture)</link-to></li>
+    <li><link-to href="/step-3">Step three (Architecture & Refactor)</link-to></li>
+    <li><link-to href="/step-3">Step three (Styling & Finishing touches)</link-to></li>
   </ul>
 `;
