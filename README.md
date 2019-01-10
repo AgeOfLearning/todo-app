@@ -62,7 +62,7 @@ class HomePage extends AoflElement {
   ...
 }
 ```
-Next we'll add markup for the view. AofL JS uses "lit-html" for templating and the `static get properties` method is used by "lit-html" to decide which property changes should update the view. Let's add a list for the todo items and a form to enter them in `/routes/home/template.js`.
+Next we'll add markup for the view. AofL JS uses [lit-html](https://lit-html.polymer-project.org/) for templating and the `static get properties` method is used by lit-html to decide which property changes should update the view. Let's add a list for the todo items and a form to enter them in `/routes/home/template.js`.
 
 ```javascript
 // routes/home/template.js
@@ -124,7 +124,7 @@ class HomePage extends AoflElement {
   addTodo(e) {
     e.preventDefault();
     this.todos = this.todos.concat([{
-      id: this.idIncrementer,
+      id: this.idIncrementer++,
       description: this.todoDescription
     }]);
     this.todoDescription = '';
@@ -260,6 +260,7 @@ class HomePage extends AoflElement {
     this.todos = [];
     this.todoDescription = '';
     this.todosCount = 0;
+    this.idIncrementor = 0;
     this.editingTodoId;
   }
 
@@ -383,9 +384,9 @@ _The code for this section is in `routes/step-3` folder in the todo app repo._
 
 ### Architecture
 
-Currently all the application and view logic is housed in the HomePage component which, violates the SoC (Separation of Concerns) principle and makes the source code harder to reason about. We can improve this by separating web components for the add todo form and the filters we're going to add.
+Currently all the application and view logic is housed in the HomePage component which, violates the SoC (Separation of Concerns) principle and makes the source code harder to reason about. We can start to improve this by separating web components for the add todo form and the filters we're going to add.
 
-This raises an important question. How are the separate components going to share state with one another? For example if we have an `<add-todo>` component and we add a new todo, how do we get that state update "the new todo item" to the HomePage component which displays all the todo items? You could bind the `todos` array via an attribute on the add-todo component, or use a pub sub pattern or something similar but these tend to unpredicatble state as mutable data objects can be changed by any one component or module at any given time and debugging such issues becomes very difficult. A better solution is to use a single state of truth in the form of a data store. So we'll use [@aofl/store](https://github.com/AgeOfLearning/aofl/tree/master/aofl-js-packages/store) to share state in the application as well as house methods which update state. This will keep our state predictable and more manageable.
+The separation of components however raises an important question. How are the separate components going to share state with one another? For example if we have an `<add-todo>` component and we add a new todo, how do we get that state update "the new todo item" to the HomePage component which displays all the todo items? You could bind the `todos` array via an attribute on the add-todo component, or use a pub sub pattern or something similar but these tend to unpredicatble state as mutable data objects can be changed by any one component or module at any given time and debugging such issues becomes very difficult. A better solution is to use a single state of truth in the form of a data store. So we'll use [@aofl/store](https://github.com/AgeOfLearning/aofl/tree/master/aofl-js-packages/store) to share state in the application as well as house methods for managing state.
 
 
 Start by installing `@aofl/store`, `@aofl/map-state-properties-mixin` and `@aofl/object-utils`
@@ -415,7 +416,7 @@ Let's start with add todo and move over the markup we're currently using in `rou
 ```javascript
 // routes/home/modules/add-todo/templates.js
 
-export default (context, html) => html`
+export default (ctx, html) => html`
   <form @submit=${(e) => ctx.addTodo(e)}>
     <input
       type="text"
@@ -507,9 +508,21 @@ storeInstance.addState(sdo);
 
 ```
 
-We start by importing the store instance from @aofl/store, a contstant enumerate object that we'll use to store the namespace for the application and a helper method for deep object copying that we'll use in decorator methods. We initialize the application state with `todos` and `description`, then set our mutation methods for adding new todo items and for storing the current todo description. We have a single decorator for the `$todosCount`. Decorators should add/modify properties to the state based on the state changes from the mutation methods. E.g. When the todos array is updated so is the `$todosCount`. Prefixing decorator properties with `$` is just a recommended practice. The mutation methods are given the sub state which will be the state for the given namespace, but decorators are given the entire state tree, which is why the `deepAssign` method is used there.
+We start by importing the store instance from @aofl/store, a contstant enumerate object that we'll use to store the namespace for the application and a helper method for deep object merging that we'll use in the decorator methods. We initialize the application state with `todos` and `description`, then set our mutation methods for adding new todo items and for storing the current todo description. We have a single decorator for the `$todosCount`. Decorators should add/modify properties to the state based on the state changes by mutation methods. E.g. When the todos array is updated so is the `$todosCount`. Prefixing decorator properties with `$` is just a recommended practice. The mutation methods are given the sub state which will be the state for the given namespace, but decorators are given the entire state tree, which is why the `deepAssign` method is used there.
 
-From here we need to update HomePage component and template to remove the methods for adding new todos, storing the current description and move those event handlers to the new AddForm component. We will also need to import the store instance to the HomePage component and use the store's state for `todos` and `todosCount`. We'll use a mixin `@aofl/map-state-properties-mixin` to help update the template based on state changes.
+From here we need to update the HomePage component and template to remove the methods for adding new todos, storing the current description and move those event handlers to the new AddForm component. We will also need to import the store instance to the HomePage component and use the store's state for `todos` and `todosCount`. We'll use the mixin we npm installed earlier `@aofl/map-state-properties-mixin` to help update the template based on state changes.
+
+Before continuing update `/modules/constants-enumerate.js` to the following:
+
+```javascript
+const sdoNamespaces = {
+  TODOS: 'TODOS'
+};
+
+export {
+  sdoNamespaces
+};
+```
 
 Here's the updated HomePage component:
 
@@ -730,6 +743,7 @@ window.customElements.define(AddTodo.is, AddTodo);
 
 export default AddTodo;
 ```
+Note the `mapStateProperties()` method in both components. This is a method provided by `@aofl/map-state-properties-mixin` and is called after state changes. In each method we assign the new state properties to our component properties so that the views will be re rendered if necessary.
 
 Great! At this point the form should be working again. Still much to do. We also need to update the edit and remove methods to use the store as well. Let's add the store methods in the SDO's mutation object  for updating todo completion, editing the description and removing todo items.
 
@@ -941,7 +955,22 @@ export default (ctx, html) => html`
   <button class="${ctx.filterState === 'incomplete' ? 'selected' : ''}" @click="${(e) => ctx.filterIncomplete()}">Show Completed</button>
 `;
 ```
-In the TodoFilters component we have a couple of event handler methods that run respective store commits and in the template we have a simple set of `<button>` tags that bind `@click` events to those methods.
+
+Finally update the HomePage component's template to use the new `<todo-filters>` component.
+
+```javascript
+// routes/home/template.js
+import './modules/add-todo';
+import './modules/todo-filters';
+
+export const template = (ctx, html) => html`
+  <h1>Todos</h1>
+  <todo-filters></todo-filters>
+  <ul>
+  ...
+`;
+```
+To recap in the TodoFilters component we have a couple of event handler methods that run respective store commits and in the template we have a simple set of `<button>` tags that bind `@click` events to those methods.
 
 Now when approaching the state, we see that if we toggle between complete and incomplete todo items, we'll need to keep intact the original `todos` array. When a filter button is clicked we'll update the `filter` property in our state object and from that state change we'll create a new filtered todos array, this is exactly what decorator methods are designed for. We'll create a `$filteredTodos()` decorator method that will create a `$filteredTodos` property on the state object based on what filter is currently selected. It will default to the full `todos` array if none is chosen, then we'll update the HomePage component to use the `$filteredTodos` array instead of the `todos`.
 
@@ -1198,9 +1227,6 @@ export const template = (ctx, html) => html`
   <add-todo></add-todo>
   <br>
   <p>Remaining todos: ${ctx.todosCount}</p>
-
-  <!-- This is not part of tutorial -->
-  <a href="/step-4">Go to step 4</a>
 `;
 ```
 
