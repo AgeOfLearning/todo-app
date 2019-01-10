@@ -62,33 +62,34 @@ class HomePage extends AoflElement {
   ...
 }
 ```
-Next we'll add markup for the view. AofL JS uses `lit-html` for templating and the `static get properties` method is used by `lit-html` to decide which property changes should update the view. Let's add a list for the todo items and a form to enter them in `/routes/home/template.js`.
+Next we'll add markup for the view. AofL JS uses "lit-html" for templating and the `static get properties` method is used by "lit-html" to decide which property changes should update the view. Let's add a list for the todo items and a form to enter them in `/routes/home/template.js`.
 
 ```javascript
-  // routes/home/template.js
-  export const template = (ctx, html) => html`
-    <h1>Todos</h1>
-    <ul>
-      ${ctx.todos.map((todo) => html`<li>${todo.description}</li>`)}
-    </ul>
-    <form @submit=${(e) => ctx.addTodo(e)}>
-      <input
-        type="text"
-        autofocus
-        autocomplete="off"
-        placeholder="I need to..."
-        .value=${ctx.todoDescription}
-        @input=${(e) => ctx.onTodoInput(e)}>
-      <button type="submit">Add</button>
-    </form>
-    <br>
-    <p>Total todos: ${ctx.todosCount}</p>
-  `;
+// routes/home/template.js
+
+export const template = (ctx, html) => html`
+  <h1>Todos</h1>
+  <ul>
+    ${ctx.todos.map((todo) => html`<li>${todo.description}</li>`)}
+  </ul>
+  <form @submit=${(e) => ctx.addTodo(e)}>
+    <input
+      type="text"
+      autofocus
+      autocomplete="off"
+      placeholder="I need to..."
+      .value=${ctx.todoDescription}
+      @input=${(e) => ctx.onTodoInput(e)}>
+    <button type="submit">Add</button>
+  </form>
+  <br>
+  <p>Total todos: ${ctx.todosCount}</p>
+`;
 ```
 
-The template file exports a tempate function which returns a lit-html template. It receieves two arguments `ctx` and `html`, the latter is the method lit-html uses to render the template and the former is the context of our home page component. The template maps our todos in un ordered list and provides a simple form for adding todos and maps the form's input value to the component's `todoDescription` property.
+The template file exports a tempate function which returns a lit-html template. It receieves two arguments `ctx` and `html`, the latter is the method lit-html uses to render the template and the former is the context of our home page component. The template maps our todos in un ordered list and provides a simple form for adding todos and binds the form's input value to the component's `todoDescription` property.
 
-_`@submit` and `@input` are `lit-html` syntax for corresponding DOM event listeners._
+_`@submit` and `@input` are "lit-html" syntax for corresponding DOM event listeners._
 
 Now that we have a view we need to build the event handlers referenced in the template `addTodo(e)` and `onTodoInput(e)` in our home page component.
 
@@ -144,38 +145,41 @@ _Enter a few todos and you should see something like this:_
 
 ## Step 2
 
+_The code for this section is in `routes/step-2` folder in the todo app repo._
+
 ### Features
 
-_The code for this section is in `routes/step-2` folder in the todo app repo referenced above._
 
-At this point we have a crude todo list app. Let's add some additional functionality to make it more useful. In this step we'll add the ability to toggle the the list items completed/uncompleted, plus the ability to remove and edit the todo items. Let's start by adding the toggle method on or HomePage component
+At this point we have a crude todo list app. Let's add some additional functionality to make it more useful. In this step we'll add the ability to toggle the list items as completed/uncompleted, plus the ability to remove and edit the todo items. We'll start by adding a toggle method on or HomePage component
 
 ```javascript
 // routes/home/index.js
+
 class HomePage extends AoflElement {
-  ...
-  /**
-   *
-   * @param {Number} id
-   * @param {Boolean} completed
-   */
-  toggleTodo(id, completed) {
-    if (completed === true) {
-      this.todosCount--;
-    } else {
-      this.todosCount++;
-    }
-    this.todos = this.todos.map((todo) => todo.id === id ? {...todo, completed} : todo);
+...
+/**
+ *
+ * @param {Number} id
+ * @param {Boolean} completed
+ */
+toggleTodo(id, completed) {
+  if (completed === true) {
+    this.todosCount--;
+  } else {
+    this.todosCount++;
   }
-  ...
+  this.todos = this.todos.map((todo) => todo.id === id ? {...todo, completed} : todo);
+}
+...
 ```
 
-The method will take the todo id, and the new toggle state. We increment or decrement the todosCount according to the new toggle state then assign `this.todos` with a new array mapped from the previous one which updates the `complete` property of the todo item matching the passed id.
+The method will take the todo id, and the new toggle state. We increment or decrement the todosCount according to the new toggle state then assign `this.todos` with a new array mapped from the previous one which updates the "complete" property of the todo item matching the passed id.
 
-Now let's add a checkbox input for each todo item and bind the event handler to this method.
+Now let's add a checkbox input for each todo item and bind the `@click` event to this method.
 
 ```javascript
 // routes/home/template.js
+
 export const template = (ctx, html) => html`
   <h1>Todos</h1>
   <ul>
@@ -192,7 +196,7 @@ export const template = (ctx, html) => html`
 We've also bound the state of the checkbox with the completed state of the todo item with `?checked=${todo.completed}` as well as added a span with an optional "completed" class to wrap the todo item. This will allow us to style it differently when an item is completed. For now let's add css for that class to make the todo italic with a line through it when it's completed.
 
 ```css
-/* /routes/home/template.css */
+/* routes/home/template.css */
 ...
 .completed {
   text-decoration: line-through;
@@ -201,27 +205,28 @@ We've also bound the state of the checkbox with the completed state of the todo 
 ...
 ```
 
-Great! We can toggle our todo items complete and uncomplete! Let's go further and add the option to remove todo items. Again we will add a method in the HomePage component to remove the items, then add a delete button in the template then bind the click event on that button with our remove method.
-
+Great! We can toggle our todo items complete and uncomplete! Let's go further and add the option to remove todo items. We will add a method in the HomePage component to remove the items, then add a delete button in the template and bind the click event on that button to the `removeTodo` method.
 
 ```javascript
 // routes/home/index.js
+
 class HomePage extends AoflElement {
-  ...
-  /**
-   *
-   * @param {Number} id
-   */
-  removeTodo(id) {
-    this.todos = this.todos.filter((todo) => todo.id !== id);
-    this.todosCount--;
-  }
-  ...
+...
+/**
+ *
+ * @param {Number} id
+ */
+removeTodo(id) {
+  this.todos = this.todos.filter((todo) => todo.id !== id);
+  this.todosCount--;
+}
+...
 ```
-The `removeTodo` method accepts an id argument and simply filters through all the todo items which do match the given id. It also decrements the `todoscount`.
+
 
 ```javascript
 // routes/home/template.js
+
 export const template = (ctx, html) => html`
   <h1>Todos</h1>
   <ul>
@@ -236,79 +241,79 @@ export const template = (ctx, html) => html`
  ...
 ```
 
-Above we've added a remove button and bound the click event with our HomePage component's removeTodo method. Right now it doesn't look pretty but should work.
+Finally let's add the ability to edit the existing todo items.
 
-Finally let's add the ability to edit the existing todo items. We'll follow the same pattern. Create the method which handles the state of the todo items in the HomePage component then add the view elements and view logic in the template.
+An intuitive way to make the items editable from a user standpoint would be to double click the todo item to make it editable. To do so we'll need a way to toggle the todo item to be editable as well as a method for actually updating the value. We'll require an `editingTodoId` property that will hold the id of the current todo being edited and create a `toggleEditableTodo` method to toggle that value.
+
+Below are snippets of the updated component and template files.
 
 ```javascript
-  // routes/home/index.js
-  class HomePage extends AoflElement {
-    /**
-     *
-     * Creates an instance of HomePage.
-     */
-    constructor() {
-      super();
-      this.todos = [];
-      this.todoDescription = '';
-      this.todosCount = 0;
-      this.editingTodoId;
-    }
+// routes/home/index.js
 
-    /**
-     * @readonly
-     */
-    static get properties() {
-      return {
-        todosCount: {type: Number, attribute: false},
-        todos: {type: Array, attribute: false},
-        todoDescription: {type: String, attribute: false},
-        editingTodoId: {type: Number, attribute: false}
-      };
-    }
-    ...
-    /**
-     *
-     * @param {Event} e
-     * @param {Number} id
-     */
-    toggleEditableTodo(e, id) {
-      e.preventDefault();
-      this.editingTodoId = id;
-    }
+class HomePage extends AoflElement {
+  /**
+   *
+   * Creates an instance of HomePage.
+   */
+  constructor() {
+    super();
+    this.todos = [];
+    this.todoDescription = '';
+    this.todosCount = 0;
+    this.editingTodoId;
+  }
 
-    /**
-     *
-     * @param {Event} e
-     * @param {Number} id
-     */
-    updateTodo(e, id) {
-      e.preventDefault();
-      let description = e.target.value;
-      this.todos = this.todos.map((todo) => todo.id === id ?
-      {...todo, description} :
-      todo);
-    }
-
-    /**
-     * Lit Element Life cycle hook.
-     * Called after the view is updated.
-     */
-    updated() {
-      if (this.editingTodoId !== undefined) {
-        // let's make sure the input field is focused..
-        this.shadowRoot.querySelector(`#todo-input-${this.editingTodoId}`).focus();
-      }
-    }
+  /**
+   * @readonly
+   */
+  static get properties() {
+    return {
+      todosCount: {type: Number, attribute: false},
+      todos: {type: Array, attribute: false},
+      todoDescription: {type: String, attribute: false},
+      editingTodoId: {type: Number, attribute: false}
+    };
+  }
   ...
+  /**
+   *
+   * @param {Event} e
+   * @param {Number} id
+   */
+  toggleEditableTodo(e, id) {
+    e.preventDefault();
+    this.editingTodoId = id;
+  }
+
+  /**
+   *
+   * @param {Event} e
+   * @param {Number} id
+   */
+  updateTodo(e, id) {
+    e.preventDefault();
+    let description = e.target.value;
+    this.todos = this.todos.map((todo) => todo.id === id ?
+    {...todo, description} :
+    todo);
+  }
+
+  /**
+   * Lit Element Life cycle hook.
+   * Called after the view is updated.
+   */
+  updated() {
+    if (this.editingTodoId !== undefined) {
+      // let's make sure the input field is focused..
+      this.shadowRoot.querySelector(`#todo-input-${this.editingTodoId}`).focus();
+    }
+  }
+...
 ```
-
-An intuitive way to make the items editable from a user standpoint would be to double click the todo item which would make the item editable. So we'll need a way to toggle the item to be editable as well as a method for actually updating the value. We add an `editingTodoId` property that will hold the id of the todo item we're currently editing which, will be toggled by the `toggleEditableTodo` method. We also make use of the `updated` lit element lifecycle hook to find the edit input field for the given todo item and make sure its focused. Finally we have the `updateTodo` method which will update the todo item's description value.
-
-Now on to the template.
 
 ```javascript
   // routes/home/template.js
+
   export const template = (ctx, html) => html`
   <h1>Todos</h1>
   <ul>
@@ -338,10 +343,10 @@ Now on to the template.
     `)}
   </ul>
 ```
-Lastly let's add a simple style rule for our forms so that they're inlined.
+Let's add a simple style rule for our forms so that they're inlined.
 
 ```css
-/* /routes/home/template.css */
+/* routes/home/template.css */
 ...
 form {
   display: inline-block;
@@ -349,34 +354,58 @@ form {
 ...
 ```
 
-So alot more going on here. For each todo item we need to check whether or not this item is being edited. We use a ternary conditional to check if we are editing this item or not. If not we show the item as it was before, we do however add a `@dblclick` event handler to the span wrapping the todo description and bind it to our `toggleEditableTodo` method, passing the event and the todo id. If we are editing, we display a form with a text input that has the current todo item's description value as a default. There are two events handled by the input element, `@blur` maps to the `toggleEditableTodo` and `@input` which maps to our `updateTodo` method. Finally the form also binds `@submit` event handler to the `toggleEditableTodo` method as well, both passing only the event and no todo id, therefore toggling off the editable view. Note we also added an id to each todo edit input, we use this in our `updated` lifecycle hook to focus the element when we toggle the edit form, since autofocus only works on page load.
+So alot more going on here.
 
-At this point we have an ugly but functional todo list application. We still need to add filters for completed/uncompleted items and we need to think about our source code as things are getting a bit bloated. In the next step we'll add the filters, but think about the structure of the application and how we can improve it.
+In the component:
+
+- We added `editingTodoId` as a property.
+- We added the `toggleEditableTodo` method.
+- We added the `updateTodo` method.
+- We used the `updated` lit-html lifecycle hook to focus the input for current editing todo since autofocus only works on page load.
+
+In the template:
+
+ - We iterate each todo item and check whether or not this item is being edited.
+ - We use a ternary conditional to check if we are editing this item or not.
+ - If not we show the item as it was before, else we show the inlined edit todo form.
+ - We bind the `@dblclick` on the todo item `<span>` to our `toggleEditableTodo` method so double clicking an item will make editable.
+ - We bind the edit input `@blur` event to our `toggleEditableTodo` method so if the input loses focus it will toggle the todo item back.
+ - We bind the `@submit` event on the form to our `toggleEditableTodo` method so that hitting "enter" will also toggle the todo item back.
+ - We bind the `@input` event on the edit input field to our `updateTodo` method, which instantly updates the todo item as it's being typed.
+
+
+At this point we have an ugly but functional todo list application. We still need to add filters for completed/uncompleted items and we should start thinking about the structure of the application and how we can improve it.
 
 
 ## Step 3
 
+_The code for this section is in `routes/step-3` folder in the todo app repo._
+
 ### Architecture
 
-At this point we should really start thinking about the structure of the application. Perhaps we start by separating concerns for different parts of the application. For example we can create separate web components for the add todo form and the filters we're going to add. This raises an impoortant point in the architecture of the application, how are the separate components going to communicate the different states they're in with one another? For example if we have an AddForm component and we add a new todo, how do we get that state update "the new todo item" to the HomePage component which displays all the todo items? You could bind the `todos` array via an attribute on the add-form component, or use a pub sub pattern but these tend to lead to unpredicatble state as mutable data objects can be mutated by any one componenet at any time. A better solution is to use a single state of truth in the form of a data store. So we'll use [@aofl/store](https://github.com/AgeOfLearning/aofl/tree/master/aofl-js-packages/store) to share state in the application as well as house any methods updating the state. This will keep our state predictable and more manageable.
+Currently all the application and view logic is housed in the HomePage component which, violates the SoC (Separation of Concerns) principle and makes the source code harder to reason about. We can improve this by separating web components for the add todo form and the filters we're going to add.
+
+This raises an important question. How are the separate components going to share state with one another? For example if we have an `<add-todo>` component and we add a new todo, how do we get that state update "the new todo item" to the HomePage component which displays all the todo items? You could bind the `todos` array via an attribute on the add-todo component, or use a pub sub pattern or something similar but these tend to unpredicatble state as mutable data objects can be changed by any one component or module at any given time and debugging such issues becomes very difficult. A better solution is to use a single state of truth in the form of a data store. So we'll use [@aofl/store](https://github.com/AgeOfLearning/aofl/tree/master/aofl-js-packages/store) to share state in the application as well as house methods which update state. This will keep our state predictable and more manageable.
 
 
-Start by installing @aofl/store and @aofl/map-state-properties-mixin
+Start by installing `@aofl/store`, `@aofl/map-state-properties-mixin` and `@aofl/object-utils`
 ```bash
 npm i -S @aofl/store @aofl/map-state-properties-mixin @aofl/object-utils
 ```
 - @aofl/store is our data store implementation.
-- @aofl/map-state-properties-mixin is used to connect our components to store. It abstracts subscribing and unsubscribing to/from store based on the component's life cycle.
+- @aofl/map-state-properties-mixin is used to connect our components to the store. It abstracts subscribing and unsubscribing to/from the store based on the component's life cycle.
+- @aofl/object-utils provides a `deepAssign` method, which does deep copy / merging of objects.
 
-Okay we'll get back to the store in a moment, for now let's create our new components
+Okay we'll get back to the store in a moment, for now let's create our new components.
 
-First creates a modules directory in `/routes/home` to house all our components
+First create a modules directory in `/routes/home` to house all our components.
 
 ```bash
 mkdir routes/home/modules
 ```
 
-Now create the components we need
+We can use the cli tool to generate the components we need.
+
 ```bash
 npx aofl g c routes/home/modules/add-todo
 npx aofl g c routes/home/modules/todo-filters
@@ -399,7 +428,7 @@ export default (context, html) => html`
   </form>
 `;
 ```
-Now update the home page component template.
+In the HomePage template we'll import the add-todo component and replace the code we copied over to the add-todo component with the `<add-todo>` component tag.
 
 ```javascript
 // routes/home/template.js
@@ -408,43 +437,18 @@ import './modules/add-todo';
 
 export const template = (ctx, html) => html`
   <h1>Todos</h1>
-  <ul>
-    ${ctx.todos.map((todo) => html`
-      <li>
-        <input type="checkbox" @click=${(e) => ctx.toggleTodo(todo.id, !todo.completed)} ?checked=${todo.completed}>
-        ${ctx.editingTodoId !== undefined && ctx.editingTodoId === todo.id ? html`
-          <form @submit=${(e) => ctx.toggleEditableTodo(e)}>
-            <input
-              type="text"
-              id="todo-input-${todo.id}"
-              tabindex="1"
-              .value=${todo.description}
-              @blur=${(e) => ctx.toggleEditableTodo(e)}
-              @input=${(e) => ctx.updateTodo(e, todo.id)}
-            >
-          </form>
-        ` : html`
-          <span
-            @dblclick=${(e) => ctx.toggleEditableTodo(e, todo.id)}
-            class="${todo.completed ? 'completed' : ''}"
-          >
-            ${todo.description}
-          </span>
-        `}
-        <button class="remove" @click=${(e) => ctx.removeTodo(todo.id)}>Delete</button>
-      </li>
-    `)}
-  </ul>
+  ...
   <add-todo></add-todo>
   <br>
   <p>Remaining todos: ${ctx.todosCount}</p>
+  ...
 ```
 
-Note that we've imported the add-todo component and replaced the code we copied over to the add-form component with the add-form component tag.
+Now if we visit our localhost site we'll see that the application is no longer working. That's because the methods from the HomePage component are missing in the AddTodo component. Moving them over alone however won't work, since they relied on HomePage component properties for state. This is where the store comes in. Instead of working directly on the HomePage's properties we'll use the store to manage the state of the application.
 
-Now if we visit our localhost site we'll see that the application is no longer working. That's because the methods from the HomePage component are missing in the AddTodo component. Moving them over alone however won't work, since they relied on HomePage component properties for state. This is where the store comes in. Instead of working directly on the HomePage's properties we'll use the store for all the properties we previously stored in the HomePage component.
+First we'll create a new store instance and pass it a SDO (State Definition Object).
 
-First we'll create a new store instance and pass it a SDO (State Definition Object), which will descibe the data structure and house the mutation methods that will work on that data. Then we can commit data to the store which will accessible from any component.
+The SDO is an object the defines the data structure and provides mutation and decorator methods that will update and decorate the state as necessary.
 
 Let's add a todos-sdo directory in `routes/home/modules`.
 
@@ -456,6 +460,7 @@ Next let's write the sdo
 
 ```javascript
 // routes/home/modules/todos-sdo/index.js
+
 import {storeInstance} from '@aofl/store';
 import {sdoNamespaces} from '../../../../modules/constants-enumerate';
 import {deepAssign} from '@aofl/object-utils';
@@ -502,17 +507,12 @@ storeInstance.addState(sdo);
 
 ```
 
-We start by importing the store instance from @aofl/store, a contstant enumerate object that we'll use to store the namespace for the application in the state object and a helper method for deep object assignment that we'll use in the decorator methods. We initialize the application state with `todos` and `description`, then set our mutation methods for adding new todo items and for storing the current todo description. We have a single decorator for the `$todosCount`. Decorators should add/modify properties to the state based on the state changes from the mutation methods. E.g. When the todos array is updated so is the `$todosCount`. Prefixing decorator properties with `$` is just a recommended practice. The mutation methods are given the sub state which will be the state for the given namespace, but decorators are given the entire state tree, which is why the `deepAssign` method is used there.
+We start by importing the store instance from @aofl/store, a contstant enumerate object that we'll use to store the namespace for the application and a helper method for deep object copying that we'll use in decorator methods. We initialize the application state with `todos` and `description`, then set our mutation methods for adding new todo items and for storing the current todo description. We have a single decorator for the `$todosCount`. Decorators should add/modify properties to the state based on the state changes from the mutation methods. E.g. When the todos array is updated so is the `$todosCount`. Prefixing decorator properties with `$` is just a recommended practice. The mutation methods are given the sub state which will be the state for the given namespace, but decorators are given the entire state tree, which is why the `deepAssign` method is used there.
 
-From here we need to update HomePage component and template to remove the methods for adding new todos and storing the current description and move those event handlers to the new AddForm component. We will also need to import the store instance to the HomePage component and use the store's state for `todos` and `todosCount`. We'll use a mixin `@aofl/map-state-properties-mixin` to help update the template based on state changes.
+From here we need to update HomePage component and template to remove the methods for adding new todos, storing the current description and move those event handlers to the new AddForm component. We will also need to import the store instance to the HomePage component and use the store's state for `todos` and `todosCount`. We'll use a mixin `@aofl/map-state-properties-mixin` to help update the template based on state changes.
 
-First we need to add `@aofl/map-state-properties-mixin` to the project
+Here's the updated HomePage component:
 
-```bash
-npm i -S @aofl/map-state-properties-mixin
-```
-
-Now the updates to the HomePage component:
 ```javascript
 // routes/home/index.js
 
@@ -731,9 +731,7 @@ window.customElements.define(AddTodo.is, AddTodo);
 export default AddTodo;
 ```
 
-Great! At this point the form should be working again. Still much to do. We need to also update the edit and remove methods to use the store as well.
-
-Let's add the store methods in the mutations object in the SDO for updating todo completion, editing the description and removing todo items:
+Great! At this point the form should be working again. Still much to do. We also need to update the edit and remove methods to use the store as well. Let's add the store methods in the SDO's mutation object  for updating todo completion, editing the description and removing todo items.
 
 ```javascript
 // routes/home/modules/todos-sdo/index.js
@@ -837,12 +835,12 @@ updateTodo(e, id) {
 ...
 ```
 
-Awesome! Everything should be working at this point. Hopefully by now you're starting to see the development flow. Everything starts from the strucure of the application state and corresponding mutation methods which is defined in one or more SDO's. Components are informed by and listen to changes to the state and update their views as neccessary. The components are also responsible for event handling and and committing to the store as necessary.
+Awesome! Everything should be working at this point. Hopefully by now you're getting a feel for the development flow. Now let's add the completed/uncompleted filters.
 
-Let's finish the application by adding our completed/uncompleted filters and styling.
+Update the TodoFilters component and template:
 
 ```javascript
-// /routes/home/modules/todo-filters/index.js
+// routes/home/modules/todo-filters/index.js
 
 import styles from './template.css';
 import template from './template';
@@ -935,15 +933,19 @@ export default TodoFilters;
 ```
 
 ```javascript
-// /routes/home/modules/todo-filters/template.js
+// routes/home/modules/todo-filters/template.js
+
 export default (ctx, html) => html`
   <button class="${ctx.filterState === '' ? 'selected' : ''}" @click="${(e) => ctx.clearFilter()}">Show All</button>
   <button class="${ctx.filterState === 'completed' ? 'selected' : ''}" @click="${(e) => ctx.filterCompleted()}">Show Remaining</button>
   <button class="${ctx.filterState === 'incomplete' ? 'selected' : ''}" @click="${(e) => ctx.filterIncomplete()}">Show Completed</button>
 `;
 ```
+In the TodoFilters component we have a couple of event handler methods that run respective store commits and in the template we have a simple set of `<button>` tags that bind `@click` events to those methods.
 
-Now when approaching the state, we see that if we toggle between complete and incomplete todo items, we'll need to keep intact the entire `todos` array. Really all we're updating is the filter type. So we have a "filter" state property that will affect how the todo items are displayed. A perfect job for a decorator. We'll create a `$filteredTodos()` decorator method that will create a `$filteredTodos` property on the state object based on what filter is currenlty selected. It will default to the full `todos` array if none is chosen. We'll then update the HomePage component to use the `$filteredTodos` array instead of the `todos`.
+Now when approaching the state, we see that if we toggle between complete and incomplete todo items, we'll need to keep intact the original `todos` array. When a filter button is clicked we'll update the `filter` property in our state object and from that state change we'll create a new filtered todos array, this is exactly what decorator methods are designed for. We'll create a `$filteredTodos()` decorator method that will create a `$filteredTodos` property on the state object based on what filter is currently selected. It will default to the full `todos` array if none is chosen, then we'll update the HomePage component to use the `$filteredTodos` array instead of the `todos`.
+
+Here's the updated SDO:
 
 ```javascript
 // routes/home/modules/todos-sdo/index.js
@@ -1027,12 +1029,15 @@ That wraps up step 3 of the tutorial. In the last step we'll add simple form val
 
 ## Step 4
 
+_The code for this section is in `routes/step-4` folder in the todo app repo._
+
 Let's start with styling so we have something better to look at!
 
 Update the following template.css files:
 
 ```css
 /* routes/home/template.css */
+
 :host {
   display: block;
   padding: 3em;
@@ -1089,7 +1094,8 @@ input[type="text"]:focus {
 ```
 
 ```css
-/* routes/home/modules/add-form/template.css */
+/* routes/home/modules/add-todo/template.css */
+
 :host {
   display: inline-block;
   position: relative;
@@ -1127,6 +1133,7 @@ button {
 
 ```css
 /* routes/home/modules/todo-filters.css */
+
 :host {
   display: inline-block;
 }
@@ -1197,14 +1204,14 @@ export const template = (ctx, html) => html`
 `;
 ```
 
-Now that we've improved the user interface let's finish the application by adding form validation. Currently you are able to enter an empty value for a todo item. To fix that we'll add a validation mixin from `@aofl/form-validate`, add some validation logic and update the view to reflect the form's validation.
+Now let's finish the application by adding form validation. Currently you are able to enter an empty value for a todo item. To fix that we'll add a validation mixin from `@aofl/form-validate`, add some validation logic and update the view to reflect the form's validation.
 
 First we'll install `@aofl/form-validate`
 ```bash
 npm i -S @aofl/form-validate
 ```
 
-Now let's implement the validation mixin:
+Now let's implement the validation mixin to the AddTodo component.
 
 ```javascript
 // routes/home/modules/add-todo/index.js
@@ -1304,10 +1311,13 @@ window.customElements.define(AddTodo.is, AddTodo);
 export default AddTodo;
 ```
 
-Here we mixin the `validationMixin` and use a built in `isRequired` validation method to make sure the given field of interest is not empty. We setup a validation object `this.validators` which describes what component properties to validation and what validation methods to use. Here we just use the build `isRequired` method. We run validation in the on input event handler and verify form validation in our submit event handler. Now let's update the view to reflect when the form is invalid.
+Here we mixin the `validationMixin` and use a built in `isRequired` validation method to make sure the given field of interest is not empty. We setup a validation object `this.validators` which describes what component properties to validate and what validation methods to use. Here we just use the build `isRequired` method. We run validation in the `@input` event handler and verify form validation in the `@submit` event handler. Now let's update the view to reflect when the form is invalid.
+
+We'll toggle the disabled attribute on the add button as needed and add a custom message when the user attempts to enter an empty todo item.
 
 ```javascript
 // routes/home/modules/add-todo/template.js
+
 export default (ctx, html) => html`
   <form @submit=${(e) => ctx.addTodo(e)}>
     <input
@@ -1325,6 +1335,8 @@ export default (ctx, html) => html`
 `;
 ```
 
-Pretty simple stuff. We toggle the disabled attribute on the add button as needed and add a custom message when the user attempts to enter an empty todo item.
+Congratulations :)
 
-Wow! You've done it! Great job.
+Let's recap what we achieved here. We started an AofL JS project from scratch and initally built the application entirely in the HomePage component. As the features and project size increased we refactored it to use specialized components and a central state with `@aofl/store`. We setup a SDO (State Definition Object) based on the application's requirements, and subscribed our components to state changes with `@aofl/map-state-properties-mixin`. We finished up by adding form validation with the help of `@aofl/form-validate`.
+
+We have separated presentation and business logic and our components are merely proxies between different APIs. Inputs and buttons allow our components to get data from the user the same way our components can make calls to web-services to retrieve information. In this uni-directional flow of data we always commit the raw data, regardless of its source, to the data store and use decorators to process the raw data for the presentation layer. The decorated data is then mapped to the components' template.
