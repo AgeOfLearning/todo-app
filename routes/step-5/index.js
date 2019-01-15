@@ -1,6 +1,6 @@
 /**
- * @route /step-4
- * @title AofL::Step 4
+ * @route /step-5
+ * @title AofL::Step 5
  * @prerender false
  */
 import './modules/todos-sdo';
@@ -10,21 +10,23 @@ import {sdoNamespaces} from '../../modules/constants-enumerate';
 import {template} from './template';
 import AoflElement from '@aofl/web-components/aofl-element';
 import styles from './template.css';
-
+import {i18nMixin} from '@aofl/i18n-mixin';
+import translations from './i18n';
 
 /**
  *
  * @extends {AoflElement}
  */
-class Step4 extends mapStatePropertiesMixin(AoflElement) {
+class Step5 extends i18nMixin(mapStatePropertiesMixin(AoflElement)) {
   /**
    *
-   * Creates an instance of Step4.
+   * Creates an instance of Step5.
    */
   constructor() {
     super();
     this.storeInstance = storeInstance;
     this.editingTodoId;
+    this.translations = translations;
   }
 
   /**
@@ -43,7 +45,19 @@ class Step4 extends mapStatePropertiesMixin(AoflElement) {
    * @readonly
    */
   static get is() {
-    return 'step-4';
+    return 'step-5';
+  }
+
+  /**
+   *
+   */
+  toggleLang() {
+    const lang = document.documentElement.getAttribute('lang');
+    if (lang === 'en-US') {
+      document.documentElement.setAttribute('lang', 'es-US');
+    } else {
+      document.documentElement.setAttribute('lang', 'en-US');
+    }
   }
 
   /**
@@ -126,10 +140,15 @@ class Step4 extends mapStatePropertiesMixin(AoflElement) {
    * @return {Object}
    */
   render() {
-    return super.render(template, [styles]);
+    return super.render({
+      default: {
+        template,
+        styles: [styles]
+      }
+    });
   }
 }
 
-customElements.define(Step4.is, Step4);
+customElements.define(Step5.is, Step5);
 
-export default Step4;
+export default Step5;

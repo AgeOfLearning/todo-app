@@ -1366,3 +1366,18 @@ Congratulations :)
 Let's recap what we achieved here. We started an AofL JS project from scratch and initally built the application entirely in the HomePage component. As the features and project size increased we refactored it to use specialized components and a central state with `@aofl/store`. We setup a SDO (State Definition Object) based on the application's requirements, and subscribed our components to state changes with `@aofl/map-state-properties-mixin`. We finished up by adding form validation with the help of `@aofl/form-validate`.
 
 We have separated presentation and business logic and our components are merely proxies between different APIs. Inputs and buttons allow our components to get data from the user the same way our components can make calls to web-services to retrieve information. In this uni-directional flow of data we always commit the raw data, regardless of its source, to the data store and use decorators to process the raw data for the presentation layer. The decorated data is then mapped to the components' template.
+
+## Bonus Step 5!
+
+### Localization
+
+Ok so you just can't get enough and want to add support for different languages. You're a trooper.
+Let's start by adding `@aofl/i18n-mixin`
+
+```bash
+npm i -S @aofl/i18n-mixin
+```
+
+Create an empty `routes/home/i18n/index.js` file.
+
+In home/index.js import the mixin and the i18n/index.js you just created.

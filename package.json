@@ -78,6 +78,7 @@
   },
   "dependencies": {
     "@aofl/form-validate": "^1.4.1",
+    "@aofl/i18n-mixin": "^1.4.1",
     "@aofl/map-state-properties-mixin": "^1.4.1",
     "@aofl/polyfill-service": "^1.4.0",
     "@aofl/router": "^1.4.0",

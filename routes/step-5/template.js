@@ -1,13 +1,14 @@
 import './modules/add-todo';
 import './modules/todo-filters';
+import {until} from 'lit-html/directives/until';
 
 export const template = (ctx, html) => html`
-  <h1>Todos</h1>
+  <h1>${until(ctx.__('<tt-oqTGNagV>', 'Todos'))}</h1>
   <todo-filters></todo-filters>
   <ul>
     ${ctx.todos.map((todo) => html`
       <li>
-      <span @click="${(e) => ctx.toggleTodo(todo.id, !todo.completed)}">
+        <span @click="${(e) => ctx.toggleTodo(todo.id, !todo.completed)}">
           ${todo.completed ? html`<i class="checked"><svg focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M10.9854 15.0752l-3.546-3.58 1.066-1.056 2.486 2.509 4.509-4.509 1.06 1.061-5.575 5.575zm1.015-12.075c-4.963 0-9 4.037-9 9s4.037 9 9 9 9-4.037 9-9-4.037-9-9-9z"></path></svg></i>`
           : html`<i class="unchecked"><svg focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill-rule="evenodd"><path d="M12 20c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8m0-17c-4.963 0-9 4.037-9 9s4.037 9 9 9 9-4.037 9-9-4.037-9-9-9"></path></g></svg></i>`}
         </span>
@@ -37,8 +38,6 @@ export const template = (ctx, html) => html`
   </ul>
   <add-todo></add-todo>
   <br>
-  <p>Remaining todos: ${ctx.todosCount}</p>
-
-  <!-- This is not part of tutorial -->
-  <a href="/step-5">Go to bonus step 5 (Localization)</a>
+  <p>${until(ctx._r(ctx.__('<tt-1bod6V5J>', 'Remaining todos: %r1%'), ctx.todosCount))}</p>
+  <button @click="${() => ctx.toggleLang()}">En/Es</button>
 `;

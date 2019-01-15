@@ -1,0 +1,78 @@
+{
+  "routes/step-5/i18n/translations.json": {
+    "<tt-oqTGNagV>": {
+      "id": "<tt-oqTGNagV>",
+      "method": "__",
+      "params": [
+        "<tt-oqTGNagV>",
+        "Todos"
+      ]
+    },
+    "<tt-1bod6V5J>": {
+      "id": "<tt-1bod6V5J>",
+      "method": "__",
+      "params": [
+        "<tt-1bod6V5J>",
+        "Remaining todos: %r1%"
+      ]
+    },
+    "_r-0": {
+      "id": "_r-0",
+      "method": "_r",
+      "params": [
+        {
+          "target": "<tt-1bod6V5J>"
+        },
+        "ctx.todosCount"
+      ]
+    },
+    "<tt-kUvzQDUs>": {
+      "id": "<tt-kUvzQDUs>",
+      "method": "__",
+      "params": [
+        "<tt-kUvzQDUs>",
+        "I need to..."
+      ]
+    },
+    "<tt-mNs8bpRy>": {
+      "id": "<tt-mNs8bpRy>",
+      "method": "__",
+      "params": [
+        "<tt-mNs8bpRy>",
+        "Add"
+      ]
+    },
+    "<tt-47xN0HE7>": {
+      "id": "<tt-47xN0HE7>",
+      "method": "__",
+      "params": [
+        "<tt-47xN0HE7>",
+        "Description is required"
+      ]
+    },
+    "<tt-cF2gf405>": {
+      "id": "<tt-cF2gf405>",
+      "method": "__",
+      "params": [
+        "<tt-cF2gf405>",
+        "Show All"
+      ]
+    },
+    "<tt-ROGvM4zZ>": {
+      "id": "<tt-ROGvM4zZ>",
+      "method": "__",
+      "params": [
+        "<tt-ROGvM4zZ>",
+        "Show Remaining"
+      ]
+    },
+    "<tt-eNjszQ3d>": {
+      "id": "<tt-eNjszQ3d>",
+      "method": "__",
+      "params": [
+        "<tt-eNjszQ3d>",
+        "Show Completed"
+      ]
+    }
+  }
+}

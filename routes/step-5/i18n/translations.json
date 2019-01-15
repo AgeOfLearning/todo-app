@@ -1,0 +1,26 @@
+{
+  "<tt-oqTGNagV>": {
+    "text": "Todos"
+  },
+  "<tt-1bod6V5J>": {
+    "text": "Remaining todos: %%r1::ctx.todosCount%%"
+  },
+  "<tt-kUvzQDUs>": {
+    "text": "I need to..."
+  },
+  "<tt-mNs8bpRy>": {
+    "text": "Add"
+  },
+  "<tt-47xN0HE7>": {
+    "text": "Description is required"
+  },
+  "<tt-cF2gf405>": {
+    "text": "Show All"
+  },
+  "<tt-ROGvM4zZ>": {
+    "text": "Show Remaining"
+  },
+  "<tt-eNjszQ3d>": {
+    "text": "Show Completed"
+  }
+}
