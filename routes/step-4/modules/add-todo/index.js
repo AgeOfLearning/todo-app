@@ -29,7 +29,7 @@ class AddTodo extends validationMixin(mapStatePropertiesMixin(AoflElement)) {
    * @readonly
    */
   static get is() {
-    return 'add-todo';
+    return 'add-todo-step-4';
   }
 
   /**

@@ -31,7 +31,7 @@ class AddTodo extends i18nMixin(validationMixin(mapStatePropertiesMixin(AoflElem
    * @readonly
    */
   static get is() {
-    return 'add-todo';
+    return 'add-todo-step-5';
   }
 
   /**

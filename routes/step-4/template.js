@@ -3,7 +3,7 @@ import './modules/todo-filters';
 
 export const template = (ctx, html) => html`
   <h1>Todos</h1>
-  <todo-filters></todo-filters>
+  <todo-filters-step-4></todo-filters-step-4>
   <ul>
     ${ctx.todos.map((todo) => html`
       <li>
@@ -35,7 +35,7 @@ export const template = (ctx, html) => html`
       </li>
     `)}
   </ul>
-  <add-todo></add-todo>
+  <add-todo-step-4></add-todo-step-4>
   <br>
   <p>Remaining todos: ${ctx.todosCount}</p>
 

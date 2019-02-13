@@ -4,7 +4,7 @@ import {until} from 'lit-html/directives/until';
 
 export const template = (ctx, html) => html`
   <h1>${until(ctx.__('<tt-oqTGNagV>', 'Todos'))}</h1>
-  <todo-filters></todo-filters>
+  <todo-filters-step-5></todo-filters-step-5>
   <ul>
     ${ctx.todos.map((todo) => html`
       <li>
@@ -36,7 +36,7 @@ export const template = (ctx, html) => html`
       </li>
     `)}
   </ul>
-  <add-todo></add-todo>
+  <add-todo-step-5></add-todo-step-5>
   <br>
   <p>${until(ctx._r(ctx.__('<tt-1bod6V5J>', 'Remaining todos: %r1%'), ctx.todosCount))}</p>
   <button @click="${() => ctx.toggleLang()}">En/Es</button>

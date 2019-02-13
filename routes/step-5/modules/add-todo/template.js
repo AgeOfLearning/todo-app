@@ -1,13 +1,12 @@
 import {until} from 'lit-html/directives/until';
 
-// console.log('asyncAppend', asyncAppend);
 export default (ctx, html) => html`
   <form @submit=${(e) => ctx.addTodo(e)}>
     <input
       type="text"
       autofocus
       autocomplete="off"
-      placeholder="${asyncAppend(html`I need to...`)}"
+      placeholder=""
       .value=${ctx.todoDescription}
       @input=${(e) => ctx.onTodoInput(e)}>
     <button type="submit" ?disabled=${!ctx.form.valid}>${until(ctx.__('<tt-mNs8bpRy>', 'Add'))}</button>

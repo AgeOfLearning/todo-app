@@ -73,7 +73,7 @@ class TodoFilters extends i18nMixin(mapStatePropertiesMixin(AoflElement)) {
    * @readonly
    */
   static get is() {
-    return 'todo-filters';
+    return 'todo-filters-step-5';
   }
 
   /**

@@ -70,7 +70,7 @@ class TodoFilters extends mapStatePropertiesMixin(AoflElement) {
    * @readonly
    */
   static get is() {
-    return 'todo-filters';
+    return 'todo-filters-step-4';
   }
 
   /**
